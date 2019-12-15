@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.OrderDao">
+    <!--//当前日期是否进行了预约设置-->
+    <select id="findOrderDate" parameterType="date" resultType="com.itheima.pojo.OrderSetting">
+        select * from t_ordersetting where orderDate=#{orderDate}
+    </select>
+    <!-- //根据手机号查询会员-->
+    <select id="findMemberByTel" parameterType="string" resultType="com.itheima.pojo.Member">
+        select * from t_member where phoneNumber=#{tel}
+    </select>
+    <!--//查询是否重复预约-->
+<select id="findOrderByNameDateSetmeal" resultType="com.itheima.pojo.Order" parameterType="map">
+      select * from  t_order where member_id=#{memberId} and orderDate=#{orderDate} and setmeal_id=#{setmealId}
+</select>
+    <!--//添加预约信息-->
+    <insert id="add" parameterType="com.itheima.pojo.Order">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_order values(#{id},#{memberId},#{orderDate},#{orderType},#{orderStatus},#{setmealId})
+    </insert>
+    <!-- //查询预约人,预约套餐,预约日期,预约类型-->
+    <select id="findById" parameterType="int" resultType="map">
+        select m.name member,s.name setmeal,o.orderDate,o.orderType
+        from
+    t_order o,
+    t_member m,
+    t_setmeal s
+      where
+      o.id=2 and o.member_id=m.id and setmeal_id=s.id
+    </select>
+    <!--查询今日已到诊人数-->
+    <select id="todayVisitsNumber" parameterType="string" resultType="integer">
+    select count(1) from t_order where orderDate = #{value} and orderStatus='已到诊'
+    </select>
+    <!--查询本周已到诊人数-->
+    <select id="thisWeekVisitsNumber" resultType="integer" parameterType="string">
+    select count(1) from t_order where orderDate >= #{value} and orderStatus='已到诊'
+    </select>
+    <!--查询本月已到诊人数-->
+    <select id="thisMonthVisitsNumber" resultType="integer" parameterType="string">
+    select count(1) from t_order where orderDate >= #{value} and orderStatus='已到诊'
+    </select>
+    <!--查询本月预约人数-->
+    <select id="thisMonthOrderNumber" parameterType="map" resultType="integer">
+     select count(1) from t_order where orderDate between #{month} and #{finallyMonth}
+    </select>
+    <!--查询本周预约人数-->
+    <select id="thisWeekOrderNumber" resultType="integer" parameterType="map">
+    select count(1) from t_order where orderDate between #{week} and #{Sunday}
+    </select>
+    <!--查询今日已预约人数-->
+    <select id="todayOrderNumber" parameterType="string" resultType="integer">
+    select count(1) from t_order where orderDate = #{value}
+    </select>
+    <select id="findCount" resultType="integer">
+        select count(1) from t_order
+    </select>
+    <select id="findMax" resultType="integer">
+     select  setmeal_id
+  from t_order  group by setmeal_id order by count(setmeal_id) DESC limit 0,4
+
+    </select>
+</mapper>

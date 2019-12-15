@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.SetmealDao">
+    <select id="findByString" parameterType="string" resultType="com.itheima.pojo.Setmeal">
+        select * from t_setmeal where name=#{value} or code=#{value} or helpCode=#{vlaue}
+    </select>
+    <select id="findPage" resultType="com.itheima.pojo.Setmeal">
+        select * from t_setmeal
+    </select>
+    <insert id="add" parameterType="com.itheima.pojo.Setmeal">
+    <selectKey resultType="java.lang.Integer"  order="AFTER" keyProperty="id" >
+        SELECT LAST_INSERT_ID()
+    </selectKey>
+        insert into t_setmeal
+        values(null,#{name},#{code},#{helpCode},#{sex},#{age},#{price},#{remark},#{attention},#{img})
+    </insert>
+    <insert id="setSetmealAndCheckgroup" parameterType="map">
+        insert into t_setmeal_checkgroup values(#{setmealId},#{checkgroupId})
+    </insert>
+    <select id="findOne" parameterType="int" resultType="com.itheima.pojo.Setmeal">
+    select * from t_setmeal where id=#{id}
+  </select>
+    <select id="findById" parameterType="int" resultType="integer">
+        select * from t_setmeal_checkgroup where setmeal_id=#{id}
+    </select>
+    <update id="edit" parameterType="com.itheima.pojo.Setmeal">
+       update t_setmeal
+       set
+      name=#{name},code=#{code},helpCode=#{helpCode},
+      sex=#{sex},age=#{age},price=#{price},remark=#{remark},
+      attention=#{attention},img=#{img}
+      where id=#{id}
+    </update>
+    <delete id="deleteSetmealAndCheckgroup" parameterType="int">
+        delete from t_setmeal_checkgroup where setmeal_id=#{id}
+    </delete>
+    <delete id="delete" parameterType="int">
+        delete from t_setmeal where id=#{id}
+    </delete>
+    <select id="findAll" resultType="com.itheima.pojo.Setmeal">
+        select * from t_setmeal
+    </select>
+    <select id="findCheckgroupById" parameterType="int" resultType="com.itheima.pojo.CheckGroup">
+        select * from t_checkgroup where id in (select checkgroup_id from t_setmeal_checkgroup where setmeal_id=#{id} )
+    </select>
+    <select id="findCheckitemById" resultType="com.itheima.pojo.CheckItem" parameterType="int">
+        select * from t_checkitem where id in (select checkitem_id from t_checkgroup_checkitem where checkgroup_id=#{id})
+    </select>
+    <select id="findName" resultType="string">
+        select name from t_setmeal
+    </select>
+    <select id="findCountByName" resultType="integer" parameterType="string">
+          select count(1) from
+  t_setmeal s,
+  t_order o
+  where s.name =#{value} and s.id=o.setmeal_id
+    </select>
+    <select id="findName4" resultType="string">
+         select name from t_setmeal limit 0,4
+    </select>
+</mapper>

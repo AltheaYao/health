@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+						   http://www.springframework.org/schema/beans/spring-beans.xsd
+						   http://www.springframework.org/schema/context
+						   http://www.springframework.org/schema/context/spring-context.xsd
+						   http://www.springframework.org/schema/aop
+						   http://www.springframework.org/schema/aop/spring-aop.xsd
+						   http://www.springframework.org/schema/tx
+						   http://www.springframework.org/schema/tx/spring-tx.xsd">
+<!--读取配置文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <!--配置数据源-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+    <!--spring和mybatis的bean工厂-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+       <!-- <property name="configLocation" value="classpath:"/>-->
+        <!--分页组件,找到对应的set方法,找到plugins,里面参数是数组-->
+        <property name="plugins">
+            <!--所以这里是araay,因为注入参数是数组-->
+            <array>
+                <!--数组里的元素对象-->
+                <bean class="com.github.pagehelper.PageHelper">
+                    <!--这个对象的set方法,要告诉分页组件用的是什么数据库,跟方言相关的,看到properties,-->
+                   <property name="properties">
+                       <!--这个properties对象,它是键值对形式的,键值对用props标签-->
+                       <props>
+                           <!--键值对配置,key是键,标签内部是值-->
+                           <prop key="dialect">mysql</prop>
+                       </props>
+                   </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+    <!--批量扫描接口生成代理对象-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.itheima.dao"/>
+    </bean>
+
+</beans>

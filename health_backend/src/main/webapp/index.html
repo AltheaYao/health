@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户列表</title>
+    <script src="js/vue.js"></script>
+    <script src="js/axios.min.js"></script>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/index.js"></script>
+
+</head>
+
+<style>
+    .el-table .warning-row {
+        background: oldlace;
+    }
+
+    .el-table .success-row {
+        background: #f0f9eb;
+    }
+</style>
+
+<body>
+<div id="app">
+    <template>
+        <el-table
+                :data="tableData2"
+                style="width: 100%"
+                :row-class-name="tableRowClassName">
+            <el-table-column
+                    prop="id"
+                    label="编号"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="username"
+                    label="姓名"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="password"
+                    label="地址">
+            </el-table-column>
+        </el-table>
+    </template>
+
+
+</div>
+<script>
+    new Vue({
+        el:"#app",
+        data:{
+            tableData2:[]
+        },
+        methods:{
+            tableRowClassName({row, rowIndex}) {
+                if (rowIndex === 1) {
+                    return 'warning-row';
+                } else if (rowIndex === 3) {
+                    return 'success-row';
+                }
+                return '';
+            }
+        },
+        created:function () {
+
+        axios.get("/user/findAll.do").then( (res) => {
+            this.tableData2=res.data;
+        })
+
+        }
+    })
+</script>
+</body>
+</html>

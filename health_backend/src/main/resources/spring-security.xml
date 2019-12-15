@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+						   http://www.springframework.org/schema/beans/spring-beans.xsd
+						   http://www.springframework.org/schema/context
+						   http://www.springframework.org/schema/context/spring-context.xsd
+						   http://www.springframework.org/schema/aop
+						   http://www.springframework.org/schema/aop/spring-aop.xsd
+						   http://code.alibabatech.com/schema/dubbo
+						   http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+						   http://www.springframework.org/schema/tx
+						   http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/security
+						   http://www.springframework.org/schema/security/spring-security.xsd">
+
+<!--匿名也可以访问的页面-->
+    <security:http security="none" pattern="/js/**" />
+    <security:http security="none" pattern="/css/**" />
+    <security:http security="none" pattern="/img/**" />
+    <security:http security="none" pattern="/plugins/**" />
+    <security:http security="none" pattern="/template/**" />
+    <security:http security="none" pattern="/login.html" />
+    <!--auto-config 的设置表示是否使用框架的一些默认设置,true就是自动配置框架的一些默认设置,比如框架会自动提供一个登陆页面虽然我们不需要
+    use-expressions use是使用的意思,expression是表达式意思,这个设置表示是否开启security的表达式-->
+    <security:http auto-config="true" use-expressions="true">
+    <!--认证通过就可以访问的页面-->
+        <!--只要认证通过就可以访问-->
+        <security:intercept-url pattern="/pages/**"  access="isAuthenticated()" />
+        <security:headers>
+            <!--设置在页面可以通过iframe访问受保护的页面，默认为不允许访问-->
+            <security:frame-options policy="SAMEORIGIN"></security:frame-options>
+        </security:headers>
+        <!--使用自定义的登录页面
+        login-page 自定义的登录页面路径
+        login-processing-url 登录提交表单的路径
+        authentication-success-forward-url 认证成功跳转的页面路径
+        authentication-failure-forward-url 认证失败跳转的页面 -->
+    <security:form-login login-page="/login.html"
+                         username-parameter="username"
+                         password-parameter="password"
+                         login-processing-url="/login.do"
+                         default-target-url="/pages/main.html"
+                         authentication-failure-forward-url="/login.html"/>
+    <!--关闭crsf过滤器 因为自定义的页面安全框架觉得不安全,这是我们就关闭crsf这个过滤器就可以正常访问-->
+        <security:csrf disabled="true"/>
+        <!--退出登录 logout-url 访问这个logout.do就退出登录, logout-success-url 退出成功后跳转的页面, invalidate(无效) session 清除session记录-->
+        <security:logout logout-url="/logout.do" logout-success-url="/login.html" invalidate-session="true" />
+
+    </security:http>
+    <!--安全框架认证管理器-->
+    <security:authentication-manager >
+        <!--管理提供者 也就是用户信息再数据库查询动态的的管理用户,而不是把用户固定了-->
+        <security:authentication-provider user-service-ref="springSecurityUserService">
+            <!--指定加密对象对密码进行加密-->
+            <security:password-encoder ref="bCryptPasswordEncoder"/>
+        </security:authentication-provider>
+    </security:authentication-manager>
+    <!--配置加密对象-->
+    <bean id="bCryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></bean>
+    <!--配置管理用户提供者-->
+  <!--  <bean id="securityUserService" class="com.itheima.service.SpringSecurityUserService"></bean>-->
+
+    <!--开启注解方式权限控制-->
+    <security:global-method-security pre-post-annotations="enabled" />
+</beans>
